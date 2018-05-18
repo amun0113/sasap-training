@@ -47,4 +47,19 @@ catch_df<-catch_df %>% #new thing equals old thing with computation
   mutate(catch= catch_thousands*1000) # won't work because column not numeric - go back up and fix first
 ```
 
+
+# Analysis
+
+Calculate chinook catch by year and region
+
 ```{r}
+annual_catch<-catch_df %>% 
+  filter(species=="Chinook") %>% 
+  group_by(Region,Year) %>% 
+  summarize(mean_catch=mean(catch),total_catch_thousands=sum(catch_thousands),nobs=n()) %>% 
+  arrange(desc(mean_catch))
+```
+
+#Joins
+
+
