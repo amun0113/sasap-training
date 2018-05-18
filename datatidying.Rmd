@@ -1,0 +1,50 @@
+---
+title: "Data Tidying"
+author: "C. Amundson"
+date: "May 17, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, message=FALSE}
+library(dplyr)
+library(tidyr)
+```
+
+Data from KNB https://knb.ecoinformatics.org/#view/df35b.304.2
+```{r download data from repository}
+catch_df <- read.csv(url("https://knb.ecoinformatics.org/knb/d1/mn/v2/object/df35b.302.1", method = "libcurl"),
+                    stringsAsFactors = FALSE)
+head(catch_df)
+```
+
+Delete unneeded columns, change to long format and rename catch column
+```{r select columns}
+catch_df<-catch_df %>% 
+  select(-All, -notesRegCode) %>% 
+  gather(key=species, value=catch, -Region, -Year) %>% 
+  rename(catch_thousands=catch)
+
+```
+
+Going back to old format - don't save, just an example
+```{r,eval=FALSE}
+# don't override the data frame name
+catch_df %>% # key = column name I want o spread into multiple columns, value = values to put into new columns
+  spread(key=species,value=catch)
+```
+
+
+Now make catch numeric and change typo and create column of catch instead of catch in thousands
+
+```{r}
+catch_df<-catch_df %>% #new thing equals old thing with computation
+  mutate(catch_thousands=ifelse(catch_thousands=="I",1,catch_thousands)) %>% 
+  mutate(catch_thousands=as.numeric(catch_thousands)) %>% 
+  mutate(catch= catch_thousands*1000) # won't work because column not numeric - go back up and fix first
+```
+
+```{r}
